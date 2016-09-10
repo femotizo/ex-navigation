@@ -1,5 +1,10 @@
 # ExNavigation
 
+[![exponent
+support](https://img.shields.io/badge/exponent-ios%20%7C%20android-blue.svg?style=flat-square&logo=data%3Aimage%2Fpng%3Bbase64%2CiVBORw0KGgoAAAANSUhEUgAAAC4AAAAoCAYAAACB4MgqAAAAAXNSR0IArs4c6QAAA2VJREFUWAnFmTtoVEEYhbOJL0hIRDBqZYQEEUQsRBHxAYr4wM5CBKuAsRJUFAQjaKN2WpginaIi2GgjaBQtLKKFBh%2BFKIaIjwgi8a3xsX7%2FurvuvTs788%2FMXRw4ZGf%2B859zdrl7d%2BamoSGjkc%2Fnp4KT4Bn4Bn6BcfAanAddGVllJ0OoZnAf2MZbip3ZuWagRKB%2BW%2BKK2m1eT8jAMl6CIKsqgmle7ol3jVQgZRNwXSLpN%2FOehRmR1nHtBOhJp1LO%2B%2BOcI7oJ2AreKIOmaXLHWRBhH96K8ZF0Gs%2F51XD3wE4CzgZfPYOa6OsDI4S1keCMKUXA2kN6msJSeHZhtAj8DghZq2W7Z4QwOu43ayUIXJctQbNvmkafBgw2wV%2Fp06PgzoSzV8FLUHKJmWVCaLkWH4B5Flpo6TONnblcblQr4POJdyOqDX0WruwGDyiDyKVySMnV0%2BQaBK%2BAZgxBmlxS57X2DvQTrvaDKcnb%2FyLYCzRD9uHzK9WYt4HnmmY4lyp7o14j1g4%2BKo33mczoXa3sF9pyk4b3GkJyqtGMO5Bq%2FphQ0%2B7ZB71Dphsw6wI%2FgGt8h5C4RAxasil74RIq1jen%2B73miFxQGh3UCKO1Uan3GF7YSYnGxUoT2W9M1AQXDtxzSt0dWs0ED%2FEbCgPZsyxNNDom8OXL%2Fk6h7b8VQHSDQlgofY6cxjJ93Ur9XqOAaRHBRqA5R76E12rScK3RlwOazdoHeNNdeoU6xG1AM6K%2B%2BRjMBXI3co3jzuAoTALDLiXql51iCgI6hxVe8uY6rHIQdiqEvsCZYxVSFtGZAp4qPE%2FXlKS5BWhO7ftrigQU8FyrCC5PBcw%2FcBQ0G6lH8NT3bO37QFMeirrGxSo9OqaBMVcn9axPP4Us6M4C8oTLNZYkwsM%2B6uqgfirRlPEEfc33a6BsS4P8kn0CtiG%2FdO3lpjq8QF%2BeQ961hSjWVhTsmRxTkHvqkLVKkhyyP5Ivom1cKwV%2FYmNRGwTqQ3VVGs8FvPoceaTcJru16xainAMXenpH0fGTf8mMWjKNiYGc8v9%2B9Ga7EzwyGDKX6rOKnwTbbVEvXypymJUtZHqMsNBiEahrCe8r6UDM5TT27%2FE0kzUgveFZV9dkDnHydID0IX1XVRukZWAA3ANbqwj%2FYaGY6RZ%2F5QaxpTLCH1MMfbtE9CyFAAAAAElFTkSuQmCC&link=https%3A%2F%2Fgetexponent.com)](https://getexponent.com)
+[![npm version](https://img.shields.io/npm/v/@exponent/ex-navigation.svg?style=flat-square)](https://www.npmjs.com/package/@exponent/ex-navigation)
+
+
 A route-centric, batteries-included navigation library for Exponent and
 React Native that works seamlessly on Android and iOS.
 
@@ -18,6 +23,7 @@ React Native that works seamlessly on Android and iOS.
 
 - `npm i @exponent/ex-navigation babel-preset-react-native-stage-0 --save`
 - Change your `.babelrc` (if you have one, if not, then create one):
+
 ```
 {
   "presets": ["react-native-stage-0/decorator-support"]
@@ -270,3 +276,88 @@ full list of functions that can be called on StackNavigation navigators.
 - `hideLocalAlert`: hide an active alert bar
 - `immediatelyResetStack`: reset the current stack to the given stack
 - `updateCurrentRouteParams`: update route params as in the above example
+
+## Working with the navigation bar
+
+The navigation bar configuration exposes a set of useful options that
+should allow you to do most things that you will want to do with it.
+
+You specify the configuration for the `navigationBar` on the route
+component, or on a `StackNavigation` component.
+
+### On a route component
+
+When you configure the `navigationBar` on a route component, the
+configuration only applies to that specific component. This is
+usually useful for specifying the title or components to render
+on the left or right of the title.
+
+```javascript
+
+ @connect()
+ class SignOutButton extends React.Component {
+   render() {
+      return (
+        <TouchableOpacity onPress={this.props.dispatch(Actions.signOut())}>
+          <Text>Sign out</Text>
+        </TouchableOpacity>
+      );
+   }
+ }
+
+ class AboutScreen extends React.Component {
+   static route = {
+     navigationBar: {
+       title: 'Title goes here',
+       renderRight: (route, props) => <SignOutButton />
+     }
+   }
+
+   // ...
+ }
+```
+
+### On StackNavigation
+
+You can configure the `defaultRouteConfig` for all routes within a
+`StackNavigation` to save you needing to specify properties like
+the `navigationBar` `backgroundColor` and `tintColor` (color to
+use for the title and back button or drawer menu hamburger button).
+
+```javascript
+class App extends React.Component {
+  render() {
+    return (
+      <NavigationProvider router={Router}>
+        <StackNavigation
+          defaultRouteConfig={{
+            navigationBar: {
+              backgroundColor: '#000',
+              tintColor: '#fff',
+            }
+          }}
+          initialRoute={Router.getRoute('home')}
+        />
+      </NavigationProvider>
+    );
+  }
+}
+```
+
+### navigationBar properties
+
+- `title` - a string or a function that returns a string. The function is provided with the route params as the first argument.
+- `backgroundColor` - the background color to use for the
+`navigationBar`.
+- `tintColor` - the color to use for the title text and back button or
+drawer button icons.
+- `visible` - boolean that indicates whether the `navigationBar` should
+be visible for this route.
+- `translucent` - iOS and Exponent only, use background blur on the
+`navigationBar`, like in the Apple Podcasts app, for example.
+- `renderLeft` - a function that should return a React component that
+will be rendered in the left position of the `navigationBar`.
+- `renderTitle` - a function that should return a React component that
+will be rendered in the title position of the `navigationBar`.
+- `renderRight` - a function that should return a React component that
+will be rendered in the right position of the `navigationBar`.

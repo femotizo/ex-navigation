@@ -120,6 +120,13 @@ export class ExNavigationStackContext extends ExNavigatorContext {
   }
 
   @debounce(500, true)
+  popToTop() {
+    this.navigationContext.performAction(({ stacks }) => {
+      stacks(this.navigatorUID).popToTop();
+    });
+  }
+
+  @debounce(500, true)
   replace(route: ExNavigationRoute) {
     invariant(route !== null && route.key, 'Route is null or malformed.');
 
@@ -472,7 +479,7 @@ class ExNavigationStack extends PureComponent<any, Props, State> {
         break;
       }
 
-      if (currentNavigator.type === 'drawer') {
+      if (currentNavigator && currentNavigator.type === 'drawer') {
         result = currentNavigator;
         break;
       }
@@ -486,18 +493,18 @@ class ExNavigationStack extends PureComponent<any, Props, State> {
     const routeConfig = route.config;
 
     if (routeConfig.navigationBar && typeof routeConfig.navigationBar.renderLeft === 'function') {
-      return routeConfig.navigationBar.renderLeft(route, props);
+      let maybeLeftComponent = routeConfig.navigationBar.renderLeft(route, props);
+
+      if (maybeLeftComponent) {
+        return maybeLeftComponent;
+      }
     }
 
-    const drawerNavigatorParent = this._drawerNavigatorParent();
-    if (props.scene.index === 0 && !!drawerNavigatorParent) {
-      return (
-        <NavigationBar.MenuButton
-          navigator={drawerNavigatorParent}
-          tintColor={route.getBarTintColor()}
-        />
-      );
+    let menuButton = this._maybeRenderMenuButton('left', route, props);
+    if (menuButton) {
+      return menuButton;
     }
+
     if (props.scene.index > 0) {
       return (
         <NavigationBar.BackButton tintColor={route.getBarTintColor()} />
@@ -506,6 +513,25 @@ class ExNavigationStack extends PureComponent<any, Props, State> {
       return null;
     }
   };
+
+  _maybeRenderMenuButton = (position, route, props) => {
+    const drawerNavigatorParent = this._drawerNavigatorParent();
+
+    if (props.scene.index === 0 && !!drawerNavigatorParent) {
+      // Don't render the button on the left if the drawerPosition is on the
+      // right, and vice versa
+      if (drawerNavigatorParent.options.drawerPosition !== position) {
+        return;
+      }
+
+      return (
+        <NavigationBar.MenuButton
+          navigator={drawerNavigatorParent}
+          tintColor={route.getBarTintColor()}
+        />
+      );
+    }
+  }
 
   _renderTitleComponentForHeader = (props) => { //eslint-disable-line react/display-name
     const { scene: { route } } = props;
@@ -523,7 +549,19 @@ class ExNavigationStack extends PureComponent<any, Props, State> {
   _renderRightComponentForHeader = (props) => {
     const { scene: { route } } = props;
     const routeConfig = route.config;
-    return routeConfig.navigationBar && routeConfig.navigationBar.renderRight && routeConfig.navigationBar.renderRight(route, props);
+
+    if (routeConfig.navigationBar && typeof routeConfig.navigationBar.renderRight === 'function') {
+      let maybeRightComponent = routeConfig.navigationBar.renderRight(route, props);
+
+      if (maybeRightComponent) {
+        return maybeRightComponent;
+      }
+    }
+
+    let menuButton = this._maybeRenderMenuButton('right', route, props);
+    if (menuButton) {
+      return menuButton;
+    }
   };
 
   _renderScene = (props: ExNavigationSceneRendererProps) => {
