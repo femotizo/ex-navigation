@@ -72,7 +72,7 @@ class ExNavigationSlidingTab extends PureComponent<any, Props, State> {
     barBackgroundColor: ExNavigationBar.DEFAULT_BACKGROUND_COLOR,
     indicatorStyle: {},
     position: 'top',
-    pressColor: 'rgba(0,0,0,0.2)',
+    pressColor: 'rgba(0,0,0,0)',
     tabStyle: {},
     renderBefore: () => null,
   };
